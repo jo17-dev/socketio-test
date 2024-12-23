@@ -1,12 +1,22 @@
 import axios from 'axios';
 import './App.css'
 import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 
 const App = ()=>{
   const [num, setNum] = useState(0);
   const [target, setTarget] = useState(0);
 
   const [errMessaage, setErrMessage] = useState("");
+
+  const socket = io("http://localhost:500", {
+    path: "/stream/"
+  });
+
+  // juste pour tester le statut de la connexion
+  socket.on('connect', ()=>{
+    console.log("your admin page is connected");
+  });
 
 
   useEffect(()=>{
@@ -26,19 +36,18 @@ const App = ()=>{
   const handleClick = async (e:any)=>{
     console.log("cliqued " + target)
 
-    axios({
-      method: 'post',
-      url: "http://localhost:500/changeTo/",
-      data: {"nombre": target}  
-    })
-      .then((response) => {
-        console.log("Requête effectuée");
-        console.log(response);
-      })
-      .catch((reason) => {
-        setErrMessage("Échec de la requête: " + reason);
-        console.log(errMessaage);
-      });
+    // evoie du nbre via emission de l'even..
+    socket.emit("sendNumber", target);
+
+    axios.get("http://localhost:500/").then(
+      (response)=>{
+        setNum(response.data.nombre);
+      }
+    ).catch((reason)=>{
+      setErrMessage("Echec de la requette: "+reason);
+      console.log(errMessaage);
+    });
+
   }
 
 

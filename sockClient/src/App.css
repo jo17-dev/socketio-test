@@ -10,3 +10,11 @@
 .card {
   padding: 2em;
 }
+
+.connected{
+  color: rgb(30, 136, 30);
+}
+
+.disconnected{
+  color: orange;
+}
